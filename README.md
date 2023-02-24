@@ -29,3 +29,62 @@ typedef struct{
 } mifare_classic_t;
 
 ```
+
+## Mifare Example to Read Memory Structure using libnfc libary
+
+```c
+
+#include <stdlib.h>
+#include <nfc/nfc.h>
+
+int main(int argc, const char *argv[]) {
+
+  nfc_context *context;
+  nfc_device *pnd;
+
+  // Initialize libnfc and set the device to the first available NFC reader
+  nfc_init(&context);
+  pnd = nfc_open(context, NULL);
+  if (pnd == NULL) {
+    printf("Error opening NFC device\n");
+    exit(EXIT_FAILURE);
+  }
+
+  // Set the opened NFC device to initiator mode
+  if (nfc_initiator_init(pnd) < 0) {
+    nfc_perror(pnd, "Error setting device to initiator mode");
+    exit(EXIT_FAILURE);
+  }
+
+  printf("NFC reader opened successfully\n");
+
+  // Poll for a ISO14443A (MIFARE) tag
+  const size_t MAX_DEVICES = 1;
+  const uint8_t uiPollNr = 1;
+  const uint8_t uiPeriod = 2;
+  const nfc_modulation nmModulations[MAX_DEVICES] = {
+      {.nmt = NMT_ISO14443A, .nbr = NBR_106},
+  };
+  nfc_target ntTarget;
+
+  if (nfc_initiator_poll_target(pnd, nmModulations, MAX_DEVICES, uiPollNr,
+                                uiPeriod, &ntTarget) <= 0) {
+    printf("Error polling for tag\n");
+    nfc_close(pnd);
+    nfc_exit(context);
+    exit(EXIT_FAILURE);
+  }
+
+  // Print the UID of the tag
+  printf("UID: ");
+  for (int i = 0; i < ntTarget.nti.nai.szUidLen; i++) {
+    printf("%02x", ntTarget.nti.nai.abtUid[i]);
+  }
+  printf("\n");
+
+  // Close the NFC device and exit
+  nfc_close(pnd);
+  nfc_exit(context);
+  exit(EXIT_SUCCESS);
+}
+```
