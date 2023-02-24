@@ -12,4 +12,20 @@ One of the main advantages of MIFARE Classic cards is their compatibility with a
 
 However, MIFARE Classic cards have been subject to several security vulnerabilities and attacks, which have raised concerns about their security. For example, the Crypto-1 encryption algorithm used by MIFARE Classic cards was found to be vulnerable to a number of attacks, including key recovery and eavesdropping. As a result, there have been calls to phase out MIFARE Classic cards in favor of more secure alternatives.
 
-## Mifare Attacks
+## Mifare Basic Structure
+
+```c
+typedef struct{
+    unsigned char uid[4]; // Indentify Card - UUID
+    unsigned char manufacturer[8];  // Card Manufacturer
+    unsigned char data[1024]; // Data Card
+    unsigned char sector_trailer[16]; // Sector Trailer
+    unsigned char sector_trailer_access_bits[3]; // Access Bits
+    unsigned char sector_trailer_keyA[6]; // Sector A Key
+    unsigned char sector_trailer_keyB[6]; //Sector B Key
+    unsigned char sector_trailer_nonce[4]; // Random number to access key in card
+
+
+} mifare_classic_t;
+
+```
